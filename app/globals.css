@@ -2516,3 +2516,28 @@ tbody tr:last-child > * {
     min-height: max(740px, calc(100svh - 75px));
   }
 }
+
+.invitation-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  margin-bottom: 24px;
+  background: var(--lime, #c5f04b);
+  color: #141610;
+  border: 1px solid currentColor;
+}
+.invitation-notice p {
+  margin: 0;
+  font-weight: 600;
+}
+.person-card .card-content > button {
+  margin-top: 16px;
+}
+@media (max-width: 600px) {
+  .invitation-notice {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

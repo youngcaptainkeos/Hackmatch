@@ -79,3 +79,7 @@ vercel.json skips the local-only MongoDB binary download during dependency insta
 - Passed 25 API checks against the actual `https://hackmatch-phi.vercel.app` deployment: registration, correct/incorrect login, logout, secure HttpOnly session cookies, origin protection, role restrictions, profile/project persistence, skill aggregation, recruitment, application acceptance, captain transfer, leave, and team/document cleanup. Verified stored passwords use scrypt. Temporary verification accounts and their data were removed; seeded demo data remains.
 
 Operator connection details are stored outside the repository at `~/.config/hackmatch/hosting.env` with file mode 0600. The current course deployment uses provider-generated database credentials; using a dedicated restricted runtime account remains a hardening step before a broader public launch. The unrelated PostgreSQL service is not used by HackMatch and was left untouched. Free Aiven services can power off after inactivity; check the console before a viva/demo.
+
+## Invitation schema update
+
+Existing databases apply `node --env-file=/path/to/private/env scripts/migrate-invitations.mjs` before deploying invitation support. The script checks whether the additive `applications.kind` column exists and preserves existing application rows. Fresh databases already include it in `sql/schema.sql`. ER/schema diagrams include the request direction.

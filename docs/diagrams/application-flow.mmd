@@ -2,7 +2,7 @@ sequenceDiagram
  participant Participant
  participant API as Next.js API
  participant SQL as MySQL
- Participant->>API: Captain accepts a pending application
+ Participant->>API: Captain accepts application OR recipient accepts invitation
  API->>SQL: BEGIN
  API->>SQL: Lock track, team, applicant, application
  API->>SQL: Verify captain, pending state, registration

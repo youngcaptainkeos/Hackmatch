@@ -66,6 +66,7 @@ schema += box(1000, 440, 380, 'TEAMS', [
 schema += box(1000, 680, 380, 'APPLICATIONS', [
   'PK id; FK user_id, team_id',
   'message VARCHAR(1000)',
+  'kind: application / invitation',
   'status ENUM; created_at',
   'UK (user_id, team_id)',
 ]);
@@ -94,7 +95,7 @@ er +=
 er +=
   box(500, 410, 300, 'MEMBERSHIP', ['Participant ↔ team', 'Captain permission']) +
   box(960, 400, 290, 'TEAM', ['Project idea', 'Current member count']) +
-  box(500, 650, 300, 'APPLICATION', ['Participant → team', 'Message + decision status']);
+  box(500, 650, 300, 'APPLICATION', ['Application / invitation', 'Message + decision status']);
 er +=
   box(50, 440, 290, 'PROFILE / MongoDB', ['Skills + preferences', 'Nested project experience']) +
   box(960, 590, 290, 'OPENING / MongoDB', ['One brief per team', 'Required skills + role']);

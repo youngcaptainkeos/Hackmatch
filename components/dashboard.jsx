@@ -18,6 +18,7 @@ import {
   SlidersHorizontal,
   Target,
   ChevronDown,
+  RefreshCw,
 } from 'lucide-react';
 import { Brand } from './brand';
 import { Button } from './ui/button';
@@ -298,6 +299,18 @@ export default function Dashboard({ user }) {
       setError(e.message);
     });
   }, [reload]);
+  useEffect(() => {
+    const refresh = () => {
+      if (!busy && document.visibilityState === 'visible')
+        reload().catch((e) => setError(e.message));
+    };
+    window.addEventListener('focus', refresh);
+    const timer = window.setInterval(refresh, 30000);
+    return () => {
+      window.removeEventListener('focus', refresh);
+      window.clearInterval(timer);
+    };
+  }, [reload, busy]);
   async function run(
     task,
     { close = false, refresh = true, message = 'Saved successfully.' } = {}
@@ -322,6 +335,52 @@ export default function Dashboard({ user }) {
     team = data.teams.find((t) => t.id === membership?.team_id),
     captain = Boolean(membership?.is_captain),
     opening = data.openings.find((o) => Number(o.team_id) === team?.id);
+  const incomingInvitations = data.applications.filter(
+    (a) => a.user_id === user.id && a.kind === 'invitation' && a.status === 'pending'
+  );
+  function inviteAction(person) {
+    if (user.role !== 'participant') return null;
+    if (!team)
+      return (
+        <Button variant="outline" disabled={busy} onClick={() => setModal({ type: 'create' })}>
+          Create a team to invite
+        </Button>
+      );
+    if (!captain) return <p className="field-hint">Your team captain can invite participants.</p>;
+    const existing = data.applications.find(
+      (a) => a.team_id === team.id && String(a.user_id) === person.user_id
+    );
+    if (existing?.kind === 'application' && existing.status === 'pending')
+      return (
+        <Button
+          variant="outline"
+          onClick={() => {
+            setModal(null);
+            navigate('My team');
+          }}
+        >
+          Review their application
+        </Button>
+      );
+    if (existing)
+      return (
+        <p className="field-hint">
+          {existing.kind === 'invitation' ? 'Invitation' : 'Application'} {existing.status}. See My
+          team for details.
+        </p>
+      );
+    if (!team.registration_open || team.slots <= 0)
+      return (
+        <p className="field-hint">
+          {team.slots <= 0 ? 'Your team is full.' : 'Track registration is closed.'}
+        </p>
+      );
+    return (
+      <Button disabled={busy} onClick={() => setModal({ type: 'invite', person })}>
+        Invite to {team.name} <Plus size={16} />
+      </Button>
+    );
+  }
   const navigation =
     user.role === 'admin'
       ? [
@@ -450,6 +509,14 @@ export default function Dashboard({ user }) {
             <span className="breadcrumb-slash">/</span>
             <strong>{page}</strong>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={busy}
+            onClick={() => run(reload, { refresh: false, message: 'Workspace refreshed.' })}
+          >
+            <RefreshCw size={16} /> Refresh
+          </Button>
           <span className="topbar-label">
             <i className="status-dot" /> DIFFERENT SKILLS. SHARED AMBITION.
           </span>
@@ -489,6 +556,17 @@ export default function Dashboard({ user }) {
             </div>
           ) : (
             <>
+              {incomingInvitations.length > 0 && page !== 'My team' && (
+                <div className="invitation-notice" role="status">
+                  <p>
+                    You have {incomingInvitations.length} pending team invitation
+                    {incomingInvitations.length === 1 ? '' : 's'}.
+                  </p>
+                  <Button size="sm" onClick={() => navigate('My team')}>
+                    View invitations <ArrowUpRight size={16} />
+                  </Button>
+                </div>
+              )}
               {page === 'Explore' && (
                 <>
                   <div className="page-intro">
@@ -755,6 +833,7 @@ export default function Dashboard({ user }) {
                                   View profile <ArrowUpRight size={16} />
                                 </button>
                               </div>
+                              {inviteAction(person)}
                             </CardContent>
                           </Card>
                         ))}
@@ -928,7 +1007,7 @@ export default function Dashboard({ user }) {
                       {captain && (
                         <>
                           <div className="section-heading spaced">
-                            <h2>Incoming applications</h2>
+                            <h2>Applications & sent invitations</h2>
                           </div>
                           {!data.applications.some((a) => a.team_id === team.id) ? (
                             <EmptyState title="No applications yet.">
@@ -944,13 +1023,18 @@ export default function Dashboard({ user }) {
                                     <Avatar name={application.name} />
                                     <div>
                                       <strong>{application.name}</strong>
-                                      <p>{application.message}</p>
+                                      <p>
+                                        {application.kind === 'invitation'
+                                          ? 'Invitation sent · '
+                                          : 'Application · '}
+                                        {application.message}
+                                      </p>
                                       <span className={`status status-${application.status}`}>
                                         {application.status}
                                       </span>
                                     </div>
-                                    {application.status === 'pending' && (
-                                      <div className="row-actions">
+                                    {application.status === 'pending' &&
+                                      application.kind === 'invitation' && (
                                         <Button
                                           variant="outline"
                                           size="sm"
@@ -960,32 +1044,53 @@ export default function Dashboard({ user }) {
                                               () =>
                                                 api('applications', 'PATCH', {
                                                   id: application.id,
-                                                  action: 'reject',
+                                                  action: 'withdraw',
                                                 }),
-                                              { message: 'Application rejected.' }
+                                              { message: 'Invitation cancelled.' }
                                             )
                                           }
                                         >
-                                          Reject
+                                          Cancel invitation
                                         </Button>
-                                        <Button
-                                          size="sm"
-                                          disabled={busy}
-                                          onClick={() =>
-                                            run(
-                                              () =>
-                                                api('applications', 'PATCH', {
-                                                  id: application.id,
-                                                  action: 'accept',
-                                                }),
-                                              { message: 'Your team has a new member.' }
-                                            )
-                                          }
-                                        >
-                                          Accept <Check size={15} />
-                                        </Button>
-                                      </div>
-                                    )}
+                                      )}
+                                    {application.status === 'pending' &&
+                                      application.kind !== 'invitation' && (
+                                        <div className="row-actions">
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            disabled={busy}
+                                            onClick={() =>
+                                              run(
+                                                () =>
+                                                  api('applications', 'PATCH', {
+                                                    id: application.id,
+                                                    action: 'reject',
+                                                  }),
+                                                { message: 'Application rejected.' }
+                                              )
+                                            }
+                                          >
+                                            Reject
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            disabled={busy}
+                                            onClick={() =>
+                                              run(
+                                                () =>
+                                                  api('applications', 'PATCH', {
+                                                    id: application.id,
+                                                    action: 'accept',
+                                                  }),
+                                                { message: 'Your team has a new member.' }
+                                              )
+                                            }
+                                          >
+                                            Accept <Check size={15} />
+                                          </Button>
+                                        </div>
+                                      )}
                                   </div>
                                 ))}
                             </div>
@@ -1012,7 +1117,7 @@ export default function Dashboard({ user }) {
                     </>
                   )}
                   <div className="section-heading spaced">
-                    <h2>Your applications</h2>
+                    <h2>Your invitations & applications</h2>
                   </div>
                   {data.applications.filter((a) => a.user_id === user.id).length ? (
                     <div className="application-list">
@@ -1021,36 +1126,100 @@ export default function Dashboard({ user }) {
                         .map((application) => (
                           <div className="application-row" key={application.id}>
                             <div>
-                              <strong>{application.team_name}</strong>
-                              <p>{application.message}</p>
+                              <button
+                                className="text-link"
+                                onClick={() => {
+                                  const target = data.teams.find(
+                                    (t) => t.id === application.team_id
+                                  );
+                                  if (target)
+                                    setModal({
+                                      type: 'view',
+                                      team: target,
+                                      opening: data.openings.find(
+                                        (o) => Number(o.team_id) === target.id
+                                      ),
+                                    });
+                                }}
+                              >
+                                {application.team_name} <ArrowUpRight size={15} />
+                              </button>
+                              <p>
+                                {application.kind === 'invitation'
+                                  ? 'Team invitation · '
+                                  : 'Your application · '}
+                                {application.message}
+                              </p>
                               <span className={`status status-${application.status}`}>
                                 {application.status}
                               </span>
                             </div>
-                            {application.status === 'pending' && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={busy}
-                                onClick={() =>
-                                  run(
-                                    () =>
-                                      api('applications', 'PATCH', {
-                                        id: application.id,
-                                        action: 'withdraw',
-                                      }),
-                                    { message: 'Application withdrawn.' }
-                                  )
-                                }
-                              >
-                                Withdraw
-                              </Button>
-                            )}
+                            {application.status === 'pending' &&
+                              application.kind === 'invitation' && (
+                                <div className="row-actions">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={busy}
+                                    onClick={() =>
+                                      run(
+                                        () =>
+                                          api('applications', 'PATCH', {
+                                            id: application.id,
+                                            action: 'reject',
+                                          }),
+                                        { message: 'Invitation declined.' }
+                                      )
+                                    }
+                                  >
+                                    Decline
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    disabled={busy || Boolean(membership)}
+                                    onClick={() =>
+                                      run(
+                                        () =>
+                                          api('applications', 'PATCH', {
+                                            id: application.id,
+                                            action: 'accept',
+                                          }),
+                                        { message: 'Invitation accepted. Welcome to your team!' }
+                                      )
+                                    }
+                                  >
+                                    Accept invitation <Check size={15} />
+                                  </Button>
+                                </div>
+                              )}
+                            {application.status === 'pending' &&
+                              application.kind !== 'invitation' && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={busy}
+                                  onClick={() =>
+                                    run(
+                                      () =>
+                                        api('applications', 'PATCH', {
+                                          id: application.id,
+                                          action: 'withdraw',
+                                        }),
+                                      { message: 'Application withdrawn.' }
+                                    )
+                                  }
+                                >
+                                  Withdraw
+                                </Button>
+                              )}
                           </div>
                         ))}
                     </div>
                   ) : (
-                    <p className="muted-copy">You haven’t applied to a team yet.</p>
+                    <p className="muted-copy">
+                      No invitations or applications yet. Find a team to apply to, or make your
+                      profile discoverable so captains can invite you.
+                    </p>
                   )}
                 </>
               )}
@@ -1154,6 +1323,7 @@ export default function Dashboard({ user }) {
               create: 'Start your team',
               view: modal.team?.name,
               person: modal.person?.name,
+              invite: `Invite ${modal.person?.name}`,
               opening: 'Your recruitment brief',
               track: 'Create a track',
               delete: 'Delete this team?',
@@ -1248,10 +1418,21 @@ export default function Dashboard({ user }) {
                   </span>
                 </>
               )}
-              {user.role === 'participant' &&
-              !membership &&
-              modal.team.slots > 0 &&
-              Boolean(modal.team.registration_open) ? (
+              {data.applications.some(
+                (a) => a.team_id === modal.team.id && a.user_id === user.id
+              ) ? (
+                <Button
+                  onClick={() => {
+                    setModal(null);
+                    navigate('My team');
+                  }}
+                >
+                  Review your invitation or application
+                </Button>
+              ) : user.role === 'participant' &&
+                !membership &&
+                modal.team.slots > 0 &&
+                Boolean(modal.team.registration_open) ? (
                 <form
                   className="form-stack"
                   onSubmit={(e) => {
@@ -1303,6 +1484,7 @@ export default function Dashboard({ user }) {
                   <Tags items={modal.person.interests} />
                 </>
               )}
+              {inviteAction(modal.person)}
               {modal.person.projects.map((project, index) => (
                 <div className="project-preview" key={index}>
                   <h3>{project.title}</h3>
@@ -1320,6 +1502,47 @@ export default function Dashboard({ user }) {
                 </div>
               ))}
             </div>
+          )}
+          {modal.type === 'invite' && team && (
+            <form
+              className="form-stack"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const message = new FormData(event.currentTarget).get('message');
+                run(
+                  () =>
+                    api('applications', 'POST', {
+                      kind: 'invitation',
+                      team_id: team.id,
+                      user_id: Number(modal.person.user_id),
+                      message,
+                    }),
+                  {
+                    close: true,
+                    message: 'Invitation sent. They can accept or decline it in My team.',
+                  }
+                );
+              }}
+            >
+              <p>
+                Invite {modal.person.name} to {team.name}. They’ll join only after accepting.
+                Invitations do not reserve a slot.
+              </p>
+              <label>
+                Message
+                <textarea
+                  name="message"
+                  required
+                  minLength={5}
+                  maxLength={1000}
+                  rows={4}
+                  defaultValue={`We’d love to have you on ${team.name}. Your skills would be a great addition to our project.`}
+                />
+              </label>
+              <Button type="submit" disabled={busy}>
+                {busy ? 'Sending…' : 'Send invitation'} <ArrowUpRight size={16} />
+              </Button>
+            </form>
           )}
           {modal.type === 'opening' && (
             <form className="form-stack" onSubmit={openingForm}>

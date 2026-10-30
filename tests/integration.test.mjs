@@ -535,6 +535,164 @@ test('real-database integration and HTTP workflows', async (t) => {
         });
       }
     });
+    await t.test(
+      'captain invitations require recipient consent and preserve membership rules',
+      async () => {
+        const created = [];
+        async function person(key) {
+          const registered = await request('auth/register', {
+            method: 'POST',
+            body: {
+              name: `Invite ${key}`,
+              email: `invite-${key}@example.test`,
+              password: process.env.SEED_PASSWORD,
+            },
+          });
+          const current = (await request('me', { cookie: registered.cookie })).data.user;
+          await request('profiles', {
+            method: 'POST',
+            cookie: registered.cookie,
+            body: {
+              bio: 'I build backend services and want to join a hackathon team.',
+              preferred_role: 'Developer',
+              availability: 'Evenings',
+              skills: ['mysql'],
+              interests: [],
+              projects: [],
+              discoverable: true,
+            },
+          });
+          const result = { id: current.id, cookie: registered.cookie };
+          created.push(result);
+          return result;
+        }
+        const captain = await person('captain'),
+          secondCaptain = await person('second-captain');
+        const recipient = await person('recipient'),
+          other = await person('other'),
+          decline = await person('decline');
+        const [track] = await db.execute(
+          'INSERT INTO tracks (name,description,max_members) VALUES (?,?,2)',
+          ['Invitation track', 'Exercise invitation acceptance and capacity.']
+        );
+        const makeTeam = async (owner, name) =>
+          (
+            await request('teams', {
+              method: 'POST',
+              cookie: owner.cookie,
+              body: {
+                name,
+                idea: 'Build a useful invitation verification project.',
+                track_id: track.insertId,
+              },
+            })
+          ).data.team_id;
+        const teamId = await makeTeam(captain, 'Invitation team'),
+          secondTeam = await makeTeam(secondCaptain, 'Second invitation team');
+        const invite = async (owner, target, targetTeam = teamId, status = 200) =>
+          request('applications', {
+            method: 'POST',
+            cookie: owner.cookie,
+            status,
+            body: {
+              kind: 'invitation',
+              user_id: target.id,
+              team_id: targetTeam,
+              message: 'Please join our hackathon project.',
+            },
+          });
+        await invite(other, recipient, teamId, 403);
+        await invite(captain, secondCaptain, teamId, 409);
+        await mongo
+          .collection('participant_profiles')
+          .updateOne({ user_id: String(other.id) }, { $set: { discoverable: false } });
+        await invite(captain, other, teamId, 409);
+        await mongo
+          .collection('participant_profiles')
+          .updateOne({ user_id: String(other.id) }, { $set: { discoverable: true } });
+        await invite(captain, recipient);
+        await invite(captain, recipient, teamId, 409);
+        await invite(secondCaptain, recipient, secondTeam);
+        await invite(captain, other);
+        await invite(captain, decline);
+        const own = (await request('teams', { cookie: recipient.cookie })).data.applications;
+        const invitation = own.find((a) => a.team_id === teamId);
+        assert.equal(invitation.kind, 'invitation');
+        assert.equal(
+          (await request('profiles', { cookie: recipient.cookie })).data.membership,
+          null
+        );
+        await request('applications', {
+          method: 'PATCH',
+          cookie: captain.cookie,
+          body: { id: invitation.id, action: 'accept' },
+          status: 403,
+        });
+        await request('applications', {
+          method: 'PATCH',
+          cookie: other.cookie,
+          body: { id: invitation.id, action: 'accept' },
+          status: 403,
+        });
+        await request('applications', {
+          method: 'PATCH',
+          cookie: recipient.cookie,
+          body: { id: invitation.id, action: 'withdraw' },
+          status: 403,
+        });
+        const declineInvitation = (await request('teams', { cookie: decline.cookie })).data
+          .applications[0];
+        await request('applications', {
+          method: 'PATCH',
+          cookie: decline.cookie,
+          body: { id: declineInvitation.id, action: 'reject' },
+        });
+        await db.execute('UPDATE tracks SET registration_open=FALSE WHERE id=?', [track.insertId]);
+        await request('applications', {
+          method: 'PATCH',
+          cookie: recipient.cookie,
+          body: { id: invitation.id, action: 'accept' },
+          status: 400,
+        });
+        await db.execute('UPDATE tracks SET registration_open=TRUE WHERE id=?', [track.insertId]);
+        await request('applications', {
+          method: 'PATCH',
+          cookie: recipient.cookie,
+          body: { id: invitation.id, action: 'accept' },
+        });
+        assert.equal(
+          (await request('profiles', { cookie: recipient.cookie })).data.membership.team_id,
+          teamId
+        );
+        const [[competing]] = await db.execute(
+          'SELECT status FROM applications WHERE user_id=? AND team_id=?',
+          [recipient.id, secondTeam]
+        );
+        assert.equal(competing.status, 'closed');
+        await request('applications', {
+          method: 'PATCH',
+          cookie: recipient.cookie,
+          body: { id: invitation.id, action: 'accept' },
+          status: 409,
+        });
+        const otherInvitation = (await request('teams', { cookie: other.cookie })).data
+          .applications[0];
+        await request('applications', {
+          method: 'PATCH',
+          cookie: other.cookie,
+          body: { id: otherInvitation.id, action: 'accept' },
+          status: 409,
+        });
+        assert.equal((await request('profiles', { cookie: other.cookie })).data.membership, null);
+        await request('applications', {
+          method: 'PATCH',
+          cookie: captain.cookie,
+          body: { id: otherInvitation.id, action: 'withdraw' },
+        });
+        const [[count]] = await db.execute('SELECT member_count FROM teams WHERE id=?', [teamId]);
+        assert.equal(count.member_count, 2);
+      }
+    );
   } finally {
     if (server) {
       server.kill('SIGTERM');

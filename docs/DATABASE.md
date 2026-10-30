@@ -2,11 +2,11 @@
 
 ## Problem and scope
 
-One hackathon has several tracks. Participants need teammates with complementary skills, understandable recruitment requirements, and compatible availability. HackMatch supports participant/admin accounts, captain permissions, profiles, one team per participant, one editable recruitment brief per team, applications, decisions, captain transfer, leaving, and team deletion. Skill matching counts overlap and does not promise team success. Availability is displayed as context, not used as an undocumented score component.
+One hackathon has several tracks. Participants need teammates with complementary skills, understandable recruitment requirements, and compatible availability. HackMatch supports participant/admin accounts, captain permissions, profiles, one team per participant, one editable recruitment brief per team, applications, captain invitations, decisions, captain transfer, leaving, and team deletion. Skill matching counts overlap and does not promise team success. Availability is displayed as context, not used as an undocumented score component.
 
 ## Why two paradigms?
 
-MySQL owns relationships and decisions that need atomicity: accounts, sessions, tracks, teams, memberships and applications. MongoDB owns profiles and recruitment documents: arrays of skills/interests and varying nested project experience can be retrieved together. MongoDB performs aggregation for candidate ranking. No vector service, embedding model, or AI inference is used.
+MySQL owns relationships and decisions that need atomicity: accounts, sessions, tracks, teams, memberships and applications/invitations. MongoDB owns profiles and recruitment documents: arrays of skills/interests and varying nested project experience can be retrieved together. MongoDB performs aggregation for candidate ranking. No vector service, embedding model, or AI inference is used.
 
 ## SQL dictionary
 
@@ -19,9 +19,9 @@ Identifiers are INT UNSIGNED. Dates use UTC. Text uses the database's utf8mb4 ch
 | tracks | id INT UNSIGNED; name VARCHAR(80); description VARCHAR(2000); max_members INT; registration_open BOOLEAN | PK id; UNIQUE name; size 2..8; name/description lengths; boolean check |
 | teams | id INT UNSIGNED; track_id INT UNSIGNED; name VARCHAR(80); idea VARCHAR(2000); member_count INT; created_at TIMESTAMP | PK id; UNIQUE name; FK track_id -> tracks; idea/name length checks; count >=0 |
 | memberships | user_id INT UNSIGNED; team_id INT UNSIGNED; is_captain BOOLEAN; joined_at TIMESTAMP; captain_team_id generated INT UNSIGNED | PK user_id; FKs to users and teams; explicit transactional deletion before team removal; UNIQUE generated captain_team_id; boolean check |
-| applications | id INT UNSIGNED; user_id INT UNSIGNED; team_id INT UNSIGNED; message VARCHAR(1000); status ENUM; created_at TIMESTAMP | PK id; FKs to users/teams; team deletion cascades; UNIQUE(user_id,team_id); message length 5..1000; index(team_id,status) |
+| applications | id INT UNSIGNED; user_id INT UNSIGNED; team_id INT UNSIGNED; message VARCHAR(1000); kind ENUM(application,invitation); status ENUM; created_at TIMESTAMP | PK id; FKs to users/teams; team deletion cascades; UNIQUE(user_id,team_id); message length 5..1000; index(team_id,status) |
 
-Application states: pending, accepted, rejected, withdrawn, closed. Each participant may apply only once to a given team. Accepted membership is authoritative; application history can remain accepted after a member leaves. Users and tracks are not deleted by the web interface.
+Applications and invitations share one request table. `kind=application` means the participant initiated the request; the captain accepts/rejects it and the participant can withdraw it. `kind=invitation` means the captain initiated it; only the invited participant accepts/rejects it, and the current captain can cancel it. Invitations do not reserve slots. Both use states pending, accepted, rejected, withdrawn, closed. The unique user/team pair permits one request per team, including an invitation. Existing pending applications are reviewed rather than duplicated as invitations. Accepted membership is authoritative; application history can remain accepted after a member leaves. Users and tracks are not deleted by the web interface.
 
 ## Relationships
 
@@ -48,7 +48,7 @@ Parameterized mysql2.execute calls are visible in separate route files. No ORM. 
 
 ## Concurrency
 
-Submission/acceptance take a shared lock on the track and a lock on the team/user before deciding. Closing registration updates the track and waits for earlier shared locks: operations already underway may finish; subsequent operations see the closure. The capacity trigger's conditional UPDATE locks the team row, so only one insert wins a last slot. Its update rolls back if the membership insert fails. The unique membership PK prevents competing teams from recruiting one person twice. Deadlock/lock-timeout responses ask the user to refresh and retry; partial work is rolled back.
+Application/invitation submission and acceptance take a shared lock on the track and a lock on the team/user before deciding. Closing registration updates the track and waits for earlier shared locks: operations already underway may finish; subsequent operations see the closure. The capacity trigger's conditional UPDATE locks the team row, so only one insert wins a last slot. Its update rolls back if the membership insert fails. The unique membership PK prevents competing teams from recruiting one person twice. Deadlock/lock-timeout responses ask the user to refresh and retry; partial work is rolled back.
 
 Captain transfer demotes/promotes inside one transaction under the team lock. The departing captain must transfer first or delete the team. The generated nullable captain_team_id gives MySQL the equivalent of a partial unique captain index: multiple NULLs are allowed, two equal non-NULL team IDs are not.
 

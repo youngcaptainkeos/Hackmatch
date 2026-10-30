@@ -1,11 +1,22 @@
 import { z } from 'zod';
+import { getMongoDB } from '@/lib/mongodb';
 import { requireUser } from '@/lib/auth';
 import { getMySQL } from '@/lib/mysql';
 import { text, id } from '@/lib/validation';
 import { endpoint, problem } from '@/lib/http';
 export const POST = endpoint(async (request) => {
   const user = await requireUser('participant');
-  const input = z.object({ team_id: id, message: text(5, 1000) }).parse(await request.json());
+  const input = z
+    .object({
+      team_id: id,
+      message: text(5, 1000),
+      kind: z.enum(['application', 'invitation']).default('application'),
+      user_id: id.optional(),
+    })
+    .parse(await request.json());
+  const invited = input.kind === 'invitation';
+  if (invited && !input.user_id) problem('Choose a participant to invite.');
+  const participantId = invited ? input.user_id : user.id;
   const connection = await getMySQL().getConnection();
   try {
     await connection.beginTransaction();
@@ -21,19 +32,41 @@ export const POST = endpoint(async (request) => {
       'SELECT * FROM team_overview WHERE id=? FOR UPDATE',
       [input.team_id]
     );
-    await connection.execute('SELECT id FROM users WHERE id=? FOR UPDATE', [user.id]);
+    if (invited) {
+      const [captain] = await connection.execute(
+        'SELECT user_id FROM memberships WHERE user_id=? AND team_id=? AND is_captain=TRUE',
+        [user.id, input.team_id]
+      );
+      if (!captain.length) problem('Only the team captain can invite participants.', 403);
+      const mongo = await getMongoDB();
+      const profile = await mongo.collection('participant_profiles').findOne({
+        user_id: String(participantId),
+        discoverable: true,
+      });
+      if (!profile) problem('This participant is no longer available for discovery.', 409);
+    }
+    const [participants] = await connection.execute(
+      "SELECT id FROM users WHERE id=? AND role='participant' FOR UPDATE",
+      [participantId]
+    );
+    if (!participants.length) problem('Participant not found.', 404);
     const [membership] = await connection.execute(
       'SELECT user_id FROM memberships WHERE user_id=?',
-      [user.id]
+      [participantId]
     );
-    if (membership.length) problem('Leave your current team before applying.');
+    if (membership.length)
+      problem(
+        invited
+          ? 'This participant already belongs to a team.'
+          : 'Leave your current team before applying.',
+        invited ? 409 : 400
+      );
     if (!tracks[0]?.registration_open || !available[0] || available[0].slots <= 0)
       problem('Team is full or registration is closed.');
-    await connection.execute('INSERT INTO applications (user_id,team_id,message) VALUES (?,?,?)', [
-      user.id,
-      input.team_id,
-      input.message,
-    ]);
+    await connection.execute(
+      'INSERT INTO applications (user_id,team_id,message,kind) VALUES (?,?,?,?)',
+      [participantId, input.team_id, input.message, input.kind]
+    );
     await connection.commit();
     return { ok: true };
   } catch (error) {
@@ -68,15 +101,18 @@ export const PATCH = endpoint(async (request) => {
     ]);
     if (!current.length || current[0].status !== 'pending')
       problem('This application is no longer pending.', 409);
-    if (input.action === 'withdraw') {
+    const invitation = application.kind === 'invitation';
+    // The recipient decides an invitation; the captain decides an application.
+    const participantActs = invitation ? input.action !== 'withdraw' : input.action === 'withdraw';
+    if (participantActs) {
       if (application.user_id !== user.id)
-        problem('You can only withdraw your own application.', 403);
+        problem('Only this participant can perform this action.', 403);
     } else {
       const [captain] = await connection.execute(
         'SELECT user_id FROM memberships WHERE user_id=? AND team_id=? AND is_captain=TRUE',
         [user.id, application.team_id]
       );
-      if (!captain.length) problem('Only the team captain can decide applications.', 403);
+      if (!captain.length) problem('Only the team captain can perform this action.', 403);
     }
     if (input.action === 'accept') {
       if (!tracks[0]?.registration_open) problem('Track registration is closed.');

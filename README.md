@@ -48,7 +48,7 @@ Open **http://localhost:3000** (APP_ORIGIN must match the browser origin). The s
 
 New registrations always become participants. There is no client-facing admin role assignment. First profile save creates the MongoDB document. Creating a team makes you captain; add its recruitment brief from My team.
 
-Initialization and seeding run once on an empty database. They refuse to overwrite populated databases. MySQL DDL auto-commits, so a failed first initialization can leave partial empty tables; investigate the cause and use a new empty database rather than rerunning destructive commands blindly. SQL scripts are first-install schema definitions, not versioned migrations.
+Initialization and seeding run once on an empty database. They refuse to overwrite populated databases. MySQL DDL auto-commits, so a failed first initialization can leave partial empty tables; investigate the cause and use a new empty database rather than rerunning destructive commands blindly. Use `sql/schema.sql` for first install. Existing deployments apply the additive scripts in `sql/migrations/` once, in numeric order.
 
 ## Connect existing or hosted databases instead
 
@@ -92,3 +92,7 @@ Target: **Vercel**, using its standard Next.js Node runtime and externally hoste
 ## Assignment and ownership
 
 The original PostgreSQL project remains in the sibling `hackmatch` directory, untouched. This fresh code is in `hackmatch-clean`. Record real contributions from both students; neither commits nor instructor approval are fabricated. Verify the project title is unique in your section and follow your institution's rules for external components/assistance. UI primitives are credited in THIRD_PARTY_NOTICES.md.
+
+## Database access for your viva
+
+See [the database access guide](docs/DATABASE-ACCESS.md) for the Aiven MySQL Workbench connection, Atlas query UI, and ready-to-run SQL/MongoDB examples. Captains can invite discoverable participants from Find teammates; recipients accept or decline in My team.

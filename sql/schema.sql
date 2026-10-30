@@ -57,6 +57,7 @@ CREATE TABLE applications (
   user_id INT UNSIGNED NOT NULL,
   team_id INT UNSIGNED NOT NULL,
   message VARCHAR(1000) NOT NULL,
+  kind ENUM('application','invitation') NOT NULL DEFAULT 'application',
   status ENUM('pending','accepted','rejected','withdrawn','closed') NOT NULL DEFAULT 'pending',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY one_application (user_id,team_id),

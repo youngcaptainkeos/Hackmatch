@@ -8,7 +8,7 @@ Verified locally on 30 October 2026 with Node 22, Next.js 16.4.3, native MySQL 8
 
 ## Real integration tests
 
-`node --env-file=.env.local --test tests/integration.test.mjs`: **19 passed, 0 failed, 0 skipped** (18 subtests plus the parent). Raw output: test-results.tap. The suite creates isolated temporary MySQL/MongoDB databases, initializes/seeds real data, starts a production Next.js HTTP server on port 3107, and removes only its own test databases afterward.
+`node --env-file=.env.local --test tests/integration.test.mjs`: **20 passed, 0 failed, 0 skipped** (19 subtests plus the parent). The suite creates isolated temporary MySQL/MongoDB databases, initializes/seeds real data, starts a production Next.js HTTP server on port 3107, and removes only its own test databases afterward.
 
 Verified:
 
@@ -52,7 +52,7 @@ ER, schema, architecture and MongoDB-model SVGs were rendered to PNGs and visual
 
 ## Verification limits and remaining work
 
-- No live Vercel deployment, hosted MySQL or Atlas account has been provisioned. Hosted TLS, network access, provider permissions, cookie/domain behavior and complete hosted workflows remain to be verified.
+- Vercel, Aiven MySQL, and Atlas are provisioned. The initial hosted verification passed 25 API checks; see docs/DEPLOYMENT.md. Invitation coverage additionally verifies recipient-only decisions, captain-only sending/cancellation, duplicates, discoverability, closed tracks, capacity, and closure of competing requests.
 - Instructor approval, title uniqueness and two students' actual contributions cannot be established by automated tests.
 - Not every UI action has been exercised manually in every browser/device. Core team/application/admin behaviors are covered by real HTTP/database tests; additional college demo rehearsal is recommended.
 - Reduced-motion CSS is present; OS-level preference emulation was not available in the connected browser controls.
