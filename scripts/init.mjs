@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
 import { getMySQL } from '../lib/mysql.js';
 import { getMongoDB } from '../lib/mongodb.js';
-export async function initialize() {
+export async function initializeMySQL() {
   const mysql = getMySQL();
   const [tables] = await mysql.execute("SHOW TABLES LIKE 'users'");
   if (tables.length)
@@ -24,6 +24,8 @@ export async function initialize() {
       buffer = '';
     }
   }
+}
+export async function initializeMongoDB() {
   const mongo = await getMongoDB();
   await mongo.createCollection('participant_profiles', {
     validator: {
@@ -105,10 +107,21 @@ export async function initialize() {
   // Deliberate simplified scope: one editable recruitment brief per team.
   await mongo.collection('team_openings').createIndex({ team_id: 1 }, { unique: true });
 }
+export async function initialize() {
+  await initializeMySQL();
+  await initializeMongoDB();
+}
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
-    await initialize();
-    console.log('Created MySQL schema and MongoDB collections, validators, and indexes.');
+    const mode = process.argv[2];
+    if (mode && !['--mysql-only', '--mongo-only'].includes(mode))
+      throw new Error('Use --mysql-only, --mongo-only, or no flag for both databases.');
+    if (mode === '--mysql-only') await initializeMySQL();
+    else if (mode === '--mongo-only') await initializeMongoDB();
+    else await initialize();
+    console.log(mode === '--mysql-only' ? 'Created MySQL schema.' : mode === '--mongo-only'
+      ? 'Created MongoDB collections, validators, and indexes.'
+      : 'Created MySQL schema and MongoDB collections, validators, and indexes.');
     process.exit(0);
   } catch (error) {
     console.error('Initialization failed:', error.code || error.message);

@@ -1,6 +1,6 @@
 # Vercel deployment checklist
 
-Status: not deployed. Target repository: https://github.com/youngcaptainkeos/Hackmatch. Approved free-tier target: Vercel Hobby + Aiven MySQL + MongoDB Atlas Free; account setup and MySQL feature verification remain pending. This guide documents the concrete deployment path without choosing a paid plan or provider on their behalf.
+Production app: https://hackmatch-phi.vercel.app/. Source repository: https://github.com/youngcaptainkeos/Hackmatch. Hosting uses Vercel Hobby, Aiven MySQL Free, and MongoDB Atlas Free through Vercel's native integration. See the verification record below for backend readiness.
 
 ## 1. Prepare accounts and databases
 
@@ -37,6 +37,16 @@ Origin checks are deliberate: production APP_ORIGIN must match the deployed brow
 
 Use an uncommitted environment file with hosted connection details and a setup user. Run db:init and optionally db:seed **once** against the new empty databases. Do not put schema creation/seed commands in the Vercel build or request handlers. After initialization, switch Vercel to the runtime user. SQL files are not automatic upgrade migrations.
 
+The providers can be initialized independently as they become available, using Node 22:
+
+```sh
+node --env-file=.env.hosting.local scripts/init.mjs --mongo-only
+node --env-file=.env.hosting.local scripts/init.mjs --mysql-only
+node --env-file=.env.hosting.local scripts/seed.mjs
+```
+
+Do not rerun initialization against an initialized database. `.env.hosting.local` is ignored by Git and must stay private. The Atlas integration supplies `MONGODB_URI`; set `MONGODB_DATABASE=hackmatch` separately. Production uses `APP_ORIGIN=https://hackmatch-phi.vercel.app`. Keep preview testing separate from production data.
+
 ## 5. Verify the real deployed URL
 
 - Landing, sign-in/sign-up, responsive layouts, animation and reduced-motion fallback.
@@ -59,3 +69,13 @@ Run `node --env-file=.env.local scripts/cleanup-openings.mjs` using the intended
 Download the project CA certificate from Aiven and enter its PEM content as MYSQL_SSL_CA in Vercel. Both multiline PEM and literal backslash-n separators are supported. Keep MYSQL_SSL=true; rejectUnauthorized remains enabled. Do not commit downloaded certificates or private keys. Verify the account can create the required triggers, views, and procedure before initializing the final schema.
 
 vercel.json skips the local-only MongoDB binary download during dependency installation. Native local database services are not run on Vercel.
+
+## Hosted verification — 30 October 2026
+
+- Vercel production redeployed successfully with all six server-side database/origin variables.
+- Aiven `hackmatch-mysql` runs MySQL 8.4.11 on the Free plan in Asia Pacific. Schema initialized in `defaultdb`: six tables, four triggers, two views, and `get_track_summary()`; the procedure returned all four seeded tracks.
+- Atlas database `hackmatch` has `participant_profiles` and `team_openings`, strict validators, and five indexes including `_id` indexes. Atlas rejected an invalid profile with validation error 121.
+- Seeded seven demo accounts, four tracks, two teams, six participant profiles, and two recruitment briefs. Demo passwords come from the local operator's existing `SEED_PASSWORD`, never from a committed file or a Vercel runtime variable.
+- Passed 25 API checks against the actual `https://hackmatch-phi.vercel.app` deployment: registration, correct/incorrect login, logout, secure HttpOnly session cookies, origin protection, role restrictions, profile/project persistence, skill aggregation, recruitment, application acceptance, captain transfer, leave, and team/document cleanup. Verified stored passwords use scrypt. Temporary verification accounts and their data were removed; seeded demo data remains.
+
+Operator connection details are stored outside the repository at `~/.config/hackmatch/hosting.env` with file mode 0600. The current course deployment uses provider-generated database credentials; using a dedicated restricted runtime account remains a hardening step before a broader public launch. The unrelated PostgreSQL service is not used by HackMatch and was left untouched. Free Aiven services can power off after inactivity; check the console before a viva/demo.
