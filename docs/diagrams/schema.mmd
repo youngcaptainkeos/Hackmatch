@@ -1,0 +1,52 @@
+erDiagram
+ USERS {
+  int id PK
+  varchar name
+  varchar email UK
+  varchar password_hash
+  enum role
+  int failed_logins
+  datetime locked_until
+  timestamp created_at
+ }
+ SESSIONS {
+  char token_hash PK
+  int user_id FK
+  datetime expires_at
+ }
+ TRACKS {
+  int id PK
+  varchar name UK
+  varchar description
+  int max_members
+  boolean registration_open
+ }
+ TEAMS {
+  int id PK
+  int track_id FK
+  varchar name UK
+  varchar idea
+  int member_count
+  timestamp created_at
+ }
+ MEMBERSHIPS {
+  int user_id PK,FK
+  int team_id FK
+  boolean is_captain
+  timestamp joined_at
+  int captain_team_id UK "generated"
+ }
+ APPLICATIONS {
+  int id PK
+  int user_id FK
+  int team_id FK
+  varchar message
+  enum status
+  timestamp created_at
+ }
+ USERS ||--o{ SESSIONS : user_id
+ USERS ||--o| MEMBERSHIPS : user_id
+ TRACKS ||--o{ TEAMS : track_id
+ TEAMS ||--o{ MEMBERSHIPS : team_id
+ USERS ||--o{ APPLICATIONS : user_id
+ TEAMS ||--o{ APPLICATIONS : team_id

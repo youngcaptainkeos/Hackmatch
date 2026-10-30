@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.env*
+!.env.example
+.vercel/
+*.log
+test-results/
+.local-data/
+
+# Keep local certificate/private-key files out of Git.
+*.pem
+*.key
+*.crt

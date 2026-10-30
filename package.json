@@ -1,0 +1,40 @@
+{
+  "name": "hackmatch",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "dev": "next dev --webpack --hostname localhost",
+    "build": "next build --webpack",
+    "start": "next start --hostname localhost",
+    "db:init": "node --env-file=.env.local scripts/init.mjs",
+    "db:seed": "node --env-file=.env.local scripts/seed.mjs",
+    "test": "node --env-file=.env.local --test tests/integration.test.mjs",
+    "diagrams": "node scripts/diagrams.mjs",
+    "db:local": "node scripts/local-databases.mjs",
+    "cleanup": "node --env-file=.env.local scripts/cleanup-openings.mjs"
+  },
+  "dependencies": {
+    "@fontsource/barlow-condensed": "^5.3.0",
+    "@fontsource/dm-sans": "^5.3.0",
+    "@radix-ui/react-slot": "^1.2.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "mongodb": "^6.20.0",
+    "mysql2": "^3.15.0",
+    "next": "^16.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tailwind-merge": "^3.3.0",
+    "tailwindcss": "^4.1.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.3.0"
+  }
+}

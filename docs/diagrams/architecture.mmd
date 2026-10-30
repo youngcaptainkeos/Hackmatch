@@ -1,0 +1,6 @@
+flowchart LR
+ Browser[Browser / Next.js UI] -->|HTTPS + session cookie| API[Next.js route handlers on Vercel]
+ API -->|Parameterized SQL + transactions| SQL[(Hosted MySQL)]
+ API -->|Document reads / writes + aggregation| Mongo[(MongoDB Atlas)]
+ SQL --> Accounts[Accounts / sessions / tracks / teams / memberships / applications]
+ Mongo --> Docs[Profiles / skills / projects / recruitment briefs]

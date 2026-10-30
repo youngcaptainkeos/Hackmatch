@@ -1,0 +1,9 @@
+erDiagram
+ USERS ||--o{ SESSIONS : authenticates
+ USERS ||--o| MEMBERSHIPS : joins
+ TRACKS ||--o{ TEAMS : categorizes
+ TEAMS ||--o{ MEMBERSHIPS : contains
+ USERS ||--o{ APPLICATIONS : submits
+ TEAMS ||--o{ APPLICATIONS : receives
+ USERS ||--o| PARTICIPANT_PROFILES : "application reference"
+ TEAMS ||--o| TEAM_OPENINGS : "application reference"

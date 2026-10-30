@@ -1,0 +1,13 @@
+.git
+.next
+node_modules
+.env*
+.local-data
+docs
+tests
+sql
+scripts
+*.log
+*.pem
+*.key
+*.crt

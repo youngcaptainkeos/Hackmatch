@@ -1,0 +1,125 @@
+TAP version 13
+# Subtest: real-database integration and HTTP workflows
+    # Subtest: anonymous access and origin protection
+    ok 1 - anonymous access and origin protection
+      ---
+      duration_ms: 615.348402
+      type: 'test'
+      ...
+    # Subtest: passwords are salted and verified
+    ok 2 - passwords are salted and verified
+      ---
+      duration_ms: 173.881422
+      type: 'test'
+      ...
+    # Subtest: registration validates input and fixes participant role
+    ok 3 - registration validates input and fixes participant role
+      ---
+      duration_ms: 199.520473
+      type: 'test'
+      ...
+    # Subtest: login, session expiry and role authorization
+    ok 4 - login, session expiry and role authorization
+      ---
+      duration_ms: 358.046267
+      type: 'test'
+      ...
+    # Subtest: failed logins trigger temporary account lock
+    ok 5 - failed logins trigger temporary account lock
+      ---
+      duration_ms: 274.582866
+      type: 'test'
+      ...
+    # Subtest: profile upsert and normalized skill aggregation
+    ok 6 - profile upsert and normalized skill aggregation
+      ---
+      duration_ms: 58.886007
+      type: 'test'
+      ...
+    # Subtest: MongoDB validators and unique references reject invalid writes
+    ok 7 - MongoDB validators and unique references reject invalid writes
+      ---
+      duration_ms: 7.554381
+      type: 'test'
+      ...
+    # Subtest: captain-only recruitment editing and team existence
+    ok 8 - captain-only recruitment editing and team existence
+      ---
+      duration_ms: 32.910832
+      type: 'test'
+      ...
+    # Subtest: closed registration blocks new teams and applications
+    ok 9 - closed registration blocks new teams and applications
+      ---
+      duration_ms: 43.312353
+      type: 'test'
+      ...
+    # Subtest: submit applications, reject duplicates and enforce captain permission
+    ok 10 - submit applications, reject duplicates and enforce captain permission
+      ---
+      duration_ms: 55.920587
+      type: 'test'
+      ...
+    # Subtest: acceptance is atomic and closes competing applications
+    ok 11 - acceptance is atomic and closes competing applications
+      ---
+      duration_ms: 37.189153
+      type: 'test'
+      ...
+    # Subtest: one-team and unique-captain SQL constraints
+    ok 12 - one-team and unique-captain SQL constraints
+      ---
+      duration_ms: 10.547507
+      type: 'test'
+      ...
+    # Subtest: captain transfer, leaving, and counter maintenance
+    ok 13 - captain transfer, leaving, and counter maintenance
+      ---
+      duration_ms: 41.818996
+      type: 'test'
+      ...
+    # Subtest: team creation is atomic and rejects duplicate membership without orphan teams
+    ok 14 - team creation is atomic and rejects duplicate membership without orphan teams
+      ---
+      duration_ms: 24.06817
+      type: 'test'
+      ...
+    # Subtest: concurrent application acceptance: exactly one wins the final slot
+    ok 15 - concurrent application acceptance: exactly one wins the final slot
+      ---
+      duration_ms: 60.558035
+      type: 'test'
+      ...
+    # Subtest: SQL validation, views, stored procedure and demo queries
+    ok 16 - SQL validation, views, stored procedure and demo queries
+      ---
+      duration_ms: 13.177487
+      type: 'test'
+      ...
+    # Subtest: deletion permissions, membership cleanup and application cascade
+    ok 17 - deletion permissions, membership cleanup and application cascade
+      ---
+      duration_ms: 29.650473
+      type: 'test'
+      ...
+    # Subtest: withdrawal and rejection are terminal decisions
+    ok 18 - withdrawal and rejection are terminal decisions
+      ---
+      duration_ms: 266.930178
+      type: 'test'
+      ...
+    1..18
+ok 1 - real-database integration and HTTP workflows
+  ---
+  duration_ms: 5261.078933
+  type: 'test'
+  ...
+1..1
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8911.113624

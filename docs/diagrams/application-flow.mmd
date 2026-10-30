@@ -1,0 +1,18 @@
+sequenceDiagram
+ participant Participant
+ participant API as Next.js API
+ participant SQL as MySQL
+ Participant->>API: Captain accepts a pending application
+ API->>SQL: BEGIN
+ API->>SQL: Lock track, team, applicant, application
+ API->>SQL: Verify captain, pending state, registration
+ API->>SQL: INSERT membership
+ Note over SQL: Unique user prevents two teams; trigger checks capacity
+ API->>SQL: Accept application; close other pending applications
+ alt All steps succeed
+  API->>SQL: COMMIT
+  API-->>Participant: Updated team
+ else Permission, capacity, uniqueness or concurrency error
+  API->>SQL: ROLLBACK
+  API-->>Participant: Explain error / refresh and retry
+ end
