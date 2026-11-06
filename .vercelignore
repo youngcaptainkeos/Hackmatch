@@ -5,7 +5,7 @@ node_modules
 .local-data
 docs
 tests
-sql
+/sql/
 scripts
 *.log
 *.pem

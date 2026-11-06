@@ -7,7 +7,8 @@ import { endpoint, problem } from '@/lib/http';
 // A valid dummy scrypt hash keeps unknown-user verification comparable in cost.
 const dummy = 'scrypt:00000000000000000000000000000000:' + '00'.repeat(64);
 export const POST = endpoint(async (request) => {
-  const input = account.parse(await request.json());
+  const body = await request.json();
+  const input = account.parse(body);
   const db = getMySQL();
   const [users] = await db.execute('SELECT * FROM users WHERE email=?', [input.email]);
   const user = users[0];
@@ -22,7 +23,9 @@ export const POST = endpoint(async (request) => {
       );
     problem('Incorrect email or password.', 401);
   }
+  if (body.adminOnly && user.role !== 'admin')
+    problem('This sign-in is for administrators. Use participant sign-in.', 403);
   await db.execute('UPDATE users SET failed_logins=0,locked_until=NULL WHERE id=?', [user.id]);
   await createSession(user.id);
-  return { ok: true };
+  return { ok: true, redirectTo: user.role === 'admin' ? '/admin' : '/dashboard' };
 });

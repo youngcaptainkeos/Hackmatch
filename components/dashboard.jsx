@@ -259,7 +259,8 @@ function ProfileForm({ profile, onSave, busy }) {
     </form>
   );
 }
-export default function Dashboard({ user }) {
+export default function Dashboard({ user: initialUser }) {
+  const [user, setUser] = useState(initialUser);
   const router = useRouter();
   const menuClose = useRef(null);
   const [data, setData] = useState(empty),
@@ -288,7 +289,8 @@ export default function Dashboard({ user }) {
     if (mobile) menuClose.current?.focus();
   }, [mobile]);
   const reload = useCallback(async () => {
-    const [teams, own] = await Promise.all([api('teams'), api('profiles')]);
+    const [teams, own, identity] = await Promise.all([api('teams'), api('profiles'), api('me')]);
+    if (identity.user) setUser(identity.user);
     setData(teams);
     setProfile(own.profile);
     if (user.role === 'admin') setAdmin(await api('admin'));
@@ -305,7 +307,7 @@ export default function Dashboard({ user }) {
         reload().catch((e) => setError(e.message));
     };
     window.addEventListener('focus', refresh);
-    const timer = window.setInterval(refresh, 30000);
+    const timer = window.setInterval(refresh, 5000);
     return () => {
       window.removeEventListener('focus', refresh);
       window.clearInterval(timer);

@@ -9,7 +9,7 @@ import { Input } from './ui/input';
 // Two-column authentication block, adapted to HackMatch from shadcn/ui login-02.
 
 
-export default function AuthForm({ register = false }) {
+export default function AuthForm({ register = false, admin = false }) {
   const router = useRouter();
   const [visible, setVisible] = useState(false),
     [busy, setBusy] = useState(false),
@@ -23,11 +23,11 @@ export default function AuthForm({ register = false }) {
       const response = await fetch(`/api/auth/${register ? 'register' : 'login'}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.fromEntries(form)),
+        body: JSON.stringify({ ...Object.fromEntries(form), ...(admin ? { adminOnly: true } : {}) }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
-      router.push('/dashboard');
+      router.push(data.redirectTo || '/dashboard');
       router.refresh();
     } catch (error) {
       setError(error.message || 'Unable to connect. Please try again.');
@@ -44,10 +44,10 @@ export default function AuthForm({ register = false }) {
         </Link>
         <div className="auth-form-wrap">
           <span className="eyebrow">
-            {register ? 'YOUR NEXT CHAPTER STARTS HERE' : 'GOOD TO HAVE YOU BACK'}
+            {admin ? 'ADMINISTRATOR ACCESS' : register ? 'YOUR NEXT CHAPTER STARTS HERE' : 'GOOD TO HAVE YOU BACK'}
           </span>
           <h1 className="display">
-            {register ? (
+            {admin ? <>ADMIN<br />CONSOLE<span>.</span></> : register ? (
               <>
                 FIND YOUR
                 <br />
@@ -62,7 +62,7 @@ export default function AuthForm({ register = false }) {
             )}
           </h1>
           <p>
-            {register
+            {admin ? 'Sign in to manage the shared database and present SQL queries.' : register
               ? 'One account. A whole new set of possibilities.'
               : 'Your ideas and your next teammates are waiting.'}
           </p>
@@ -133,17 +133,19 @@ export default function AuthForm({ register = false }) {
                 </>
               ) : (
                 <>
-                  {register ? 'CREATE YOUR ACCOUNT' : 'SIGN IN'}
+                  {admin ? 'ADMIN SIGN IN' : register ? 'CREATE YOUR ACCOUNT' : 'SIGN IN'}
                   <ArrowUpRight size={19} />
                 </>
               )}
             </Button>
           </form>
           <p className="auth-switch">
+            {admin ? <Link href="/sign-in">Participant sign-in ↗</Link> : <>
             {register ? 'Already part of the crew?' : 'New around here?'}{' '}
             <Link href={register ? '/sign-in' : '/sign-up'}>
               {register ? 'Sign in' : 'Create an account'} ↗
             </Link>
+          </>}
           </p>
         </div>
         <span className="auth-footnote">GOOD IDEAS NEED GREAT TEAMS.</span>

@@ -11,3 +11,4 @@ test-results/
 *.pem
 *.key
 *.crt
+.vercel
