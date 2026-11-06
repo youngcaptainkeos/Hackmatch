@@ -1197,6 +1197,24 @@ label select {
   min-height: 48px;
   justify-content: space-between;
 }
+.auth-role-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+.auth-role-options a {
+  padding: 10px 14px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.auth-role-options a:hover,
+.auth-role-options a[aria-current='page'] {
+  background: var(--lime);
+  color: #24271f;
+}
 .auth-switch {
   margin-top: 27px !important;
   font-size: 11px !important;

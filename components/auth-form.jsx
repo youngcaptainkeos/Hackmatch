@@ -147,6 +147,14 @@ export default function AuthForm({ register = false, admin = false }) {
             </Link>
           </>}
           </p>
+          <nav className="auth-role-options" aria-label="Choose sign-in page">
+            <Link href="/sign-in" aria-current={!register && !admin ? 'page' : undefined}>
+              Participant sign-in ↗
+            </Link>
+            <Link href="/admin/sign-in" aria-current={admin ? 'page' : undefined}>
+              Admin sign-in ↗
+            </Link>
+          </nav>
         </div>
         <span className="auth-footnote">GOOD IDEAS NEED GREAT TEAMS.</span>
       </div>
