@@ -575,7 +575,7 @@ export default function Dashboard({ user }) {
                         YOUR NEXT CHAPTER, {user.name.split(' ')[0].toUpperCase()}
                       </span>
                       <h1>
-                        Find your starting point SUMUKH WAS HERE<span>.</span>
+                        Find your starting point<span>.</span>
                       </h1>
                       <p>Explore the ideas. Find your people. Make something happen.</p>
                     </div>
