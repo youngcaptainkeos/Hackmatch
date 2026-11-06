@@ -111,3 +111,34 @@ CREATE VIEW track_stats AS
 SELECT tr.id,tr.name,tr.max_members,tr.registration_open,
        COUNT(t.id) AS team_count,COALESCE(SUM(t.member_count),0) AS participant_count
 FROM tracks tr LEFT JOIN teams t ON t.track_id=tr.id GROUP BY tr.id;
+
+
+/*DELIMITER $$
+
+CREATE PROCEDURE procedure_name()
+BEGIN
+  SELECT column_name
+  FROM table_name;
+END$$
+
+DELIMITER ;
+
+CALL procedure_name();
+
+DELIMITER $$
+
+CREATE TRIGGER trigger_name
+BEFORE INSERT ON table_name
+FOR EACH ROW
+BEGIN
+  -- Use NEW.column_name for the incoming row
+  IF some_condition THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Explain why the operation is rejected';
+  END IF;
+END$$
+
+DELIMITER ;
+
+
+*/

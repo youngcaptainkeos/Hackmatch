@@ -1,0 +1,762 @@
+{
+  "diagramType": 2,
+  "id": 1793417695,
+  "name": "HackMatch \u2014 relational schema",
+  "folder": {
+    "name": "Diagrams",
+    "id": 1,
+    "folderType": 1,
+    "depth": 0
+  },
+  "updatedAtTimestamp": 1793417693,
+  "data": {
+    "nodes": [
+      {
+        "id": "7c4c32be-7eb7-536b-8418-525cc369228b",
+        "type": "Table",
+        "position": {
+          "x": 20,
+          "y": 70
+        },
+        "data": {
+          "label": "USERS",
+          "columns": [
+            {
+              "id": "fcab5ea0-98a6-5c60-8b5a-e93eee56f0dd",
+              "name": "id",
+              "position": 0,
+              "type": "Custom",
+              "size": "INT UNSIGNED",
+              "isPrimaryKey": true,
+              "isUnique": true,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "ca59faeb-e38a-5d0c-a6cc-37c58220bff6",
+              "name": "name",
+              "position": 1,
+              "type": "VARCHAR(n)",
+              "size": "80",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "148bd030-df6b-5c52-b53f-63b703d05477",
+              "name": "email",
+              "position": 2,
+              "type": "VARCHAR(n)",
+              "size": "254",
+              "isPrimaryKey": false,
+              "isUnique": true,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "b5ad48b6-d361-5f3e-b73a-9eb78757e8b4",
+              "name": "password_hash",
+              "position": 3,
+              "type": "VARCHAR(n)",
+              "size": "200",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "05376b26-c2ea-5517-8a58-211917342083",
+              "name": "role",
+              "position": 4,
+              "type": "Custom",
+              "size": "ENUM('participant','admin')",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "111ce006-1800-5355-9844-0106650b3f94",
+              "name": "failed_logins",
+              "position": 5,
+              "type": "Custom",
+              "size": "INT UNSIGNED",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "0d6f34f9-40be-5124-8c94-152f77c9a372",
+              "name": "locked_until",
+              "position": 6,
+              "type": "Custom",
+              "size": "DATETIME",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": true,
+              "isForeignKey": false
+            },
+            {
+              "id": "68b15f9c-30aa-5d45-beb2-130f5f520842",
+              "name": "created_at",
+              "position": 7,
+              "type": "Custom",
+              "size": "TIMESTAMP",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            }
+          ],
+          "isConnectable": true,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 430,
+          "height": 290
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "519bb0c6-449d-5e9f-b6ab-9bc9b5d118e1",
+        "type": "Table",
+        "position": {
+          "x": 610,
+          "y": 70
+        },
+        "data": {
+          "label": "SESSIONS",
+          "columns": [
+            {
+              "id": "f312455a-42e1-51b3-a0c6-b7492370b7f3",
+              "name": "token_hash",
+              "position": 0,
+              "type": "CHAR(n)",
+              "size": "64",
+              "isPrimaryKey": true,
+              "isUnique": true,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "1ba07a34-3d85-5949-b0bb-b3a14b2e7b9b",
+              "name": "user_id",
+              "position": 1,
+              "type": "Custom",
+              "size": "INT UNSIGNED",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "2f2be643-b10c-501b-a35a-94d0dd35c869",
+                "sourceTableId": "7c4c32be-7eb7-536b-8418-525cc369228b",
+                "columns": [
+                  {
+                    "id": "fk_fcab5ea0-98a6-5c60-8b5a-e93eee56f0dd",
+                    "name": "user_id",
+                    "type": "Custom",
+                    "size": "INT UNSIGNED"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "8f2bc2be-cf4c-5378-9970-639fd7099304",
+              "name": "expires_at",
+              "position": 2,
+              "type": "Custom",
+              "size": "DATETIME",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            }
+          ],
+          "isConnectable": true,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 430,
+          "height": 140
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "f9815b5a-805c-5347-801e-5913dee971a5",
+        "type": "Table",
+        "position": {
+          "x": 1180,
+          "y": 70
+        },
+        "data": {
+          "label": "TRACKS",
+          "columns": [
+            {
+              "id": "09ffa5a6-bfec-556c-bda8-f0e239af3640",
+              "name": "id",
+              "position": 0,
+              "type": "Custom",
+              "size": "INT UNSIGNED",
+              "isPrimaryKey": true,
+              "isUnique": true,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "b7a38903-b1d2-5ea7-aa1c-bfe4870b1583",
+              "name": "name",
+              "position": 1,
+              "type": "VARCHAR(n)",
+              "size": "80",
+              "isPrimaryKey": false,
+              "isUnique": true,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "633472b2-a703-5666-823b-2e1176987431",
+              "name": "description",
+              "position": 2,
+              "type": "VARCHAR(n)",
+              "size": "2000",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "f6043acc-1f17-50fc-929c-96f4c1f1a6b4",
+              "name": "max_members",
+              "position": 3,
+              "type": "INT",
+              "size": "",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "18e2b69d-fccb-5400-b850-9cc9ec66ef21",
+              "name": "registration_open",
+              "position": 4,
+              "type": "Custom",
+              "size": "BOOLEAN",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            }
+          ],
+          "isConnectable": true,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 430,
+          "height": 200
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "f815b02d-3254-53cd-b4a9-45b5baf0849a",
+        "type": "Table",
+        "position": {
+          "x": 1180,
+          "y": 470
+        },
+        "data": {
+          "label": "TEAMS",
+          "columns": [
+            {
+              "id": "13bea83a-d0cb-5220-a4eb-4e3ea6f48bab",
+              "name": "id",
+              "position": 0,
+              "type": "Custom",
+              "size": "INT UNSIGNED",
+              "isPrimaryKey": true,
+              "isUnique": true,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "ee1b5039-2083-5586-8fea-dfd44d3c971e",
+              "name": "track_id",
+              "position": 1,
+              "type": "Custom",
+              "size": "INT UNSIGNED",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "f0469578-9665-5488-a251-db8c7e6ef3ee",
+                "sourceTableId": "f9815b5a-805c-5347-801e-5913dee971a5",
+                "columns": [
+                  {
+                    "id": "fk_09ffa5a6-bfec-556c-bda8-f0e239af3640",
+                    "name": "track_id",
+                    "type": "Custom",
+                    "size": "INT UNSIGNED"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "1df74b43-78a7-5a59-85d0-ea51015f848e",
+              "name": "name",
+              "position": 2,
+              "type": "VARCHAR(n)",
+              "size": "80",
+              "isPrimaryKey": false,
+              "isUnique": true,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "0a104dd8-3e30-5f7a-b98d-c414ce4b92a9",
+              "name": "idea",
+              "position": 3,
+              "type": "VARCHAR(n)",
+              "size": "2000",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "48a10d13-c4fa-5e42-9c72-399946c4fd9c",
+              "name": "member_count",
+              "position": 4,
+              "type": "INT",
+              "size": "",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "8e16cc38-8129-511c-93d2-771f75ddded0",
+              "name": "created_at",
+              "position": 5,
+              "type": "Custom",
+              "size": "TIMESTAMP",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            }
+          ],
+          "isConnectable": true,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 430,
+          "height": 230
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "bb06cf50-c16a-5dd5-a1b0-782af90a12ef",
+        "type": "Table",
+        "position": {
+          "x": 610,
+          "y": 470
+        },
+        "data": {
+          "label": "MEMBERSHIPS",
+          "columns": [
+            {
+              "id": "c7248a3a-b483-5ed4-bb82-0e1b96e69062",
+              "name": "user_id",
+              "position": 0,
+              "type": "Custom",
+              "size": "INT UNSIGNED",
+              "isPrimaryKey": true,
+              "isUnique": true,
+              "isOptional": false,
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "8f777d51-c6c5-55d6-b5e9-4f2319c88d29",
+                "sourceTableId": "7c4c32be-7eb7-536b-8418-525cc369228b",
+                "columns": [
+                  {
+                    "id": "fk_fcab5ea0-98a6-5c60-8b5a-e93eee56f0dd",
+                    "name": "user_id",
+                    "type": "Custom",
+                    "size": "INT UNSIGNED"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "49b605e1-1cf4-5f78-a18f-e74f9738b6c6",
+              "name": "team_id",
+              "position": 1,
+              "type": "Custom",
+              "size": "INT UNSIGNED",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "b9dc85be-85f2-56d8-816c-d656f43bfa34",
+                "sourceTableId": "f815b02d-3254-53cd-b4a9-45b5baf0849a",
+                "columns": [
+                  {
+                    "id": "fk_13bea83a-d0cb-5220-a4eb-4e3ea6f48bab",
+                    "name": "team_id",
+                    "type": "Custom",
+                    "size": "INT UNSIGNED"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "6057c31c-2847-53c5-a19d-00430a076bcb",
+              "name": "is_captain",
+              "position": 2,
+              "type": "Custom",
+              "size": "BOOLEAN",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "910f763b-29f0-5bf4-bfe9-bbbd20bc9c88",
+              "name": "joined_at",
+              "position": 3,
+              "type": "Custom",
+              "size": "TIMESTAMP",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "b440ffc4-528f-5649-b59b-b8462d2e2cbf",
+              "name": "captain_team_id",
+              "position": 4,
+              "type": "Custom",
+              "size": "INT UNSIGNED",
+              "isPrimaryKey": false,
+              "isUnique": true,
+              "isOptional": true,
+              "isForeignKey": false
+            }
+          ],
+          "isConnectable": true,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 430,
+          "height": 200
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "e4a95384-7329-59dc-9f99-4e6c9995097e",
+        "type": "Table",
+        "position": {
+          "x": 1180,
+          "y": 850
+        },
+        "data": {
+          "label": "APPLICATIONS",
+          "columns": [
+            {
+              "id": "2287c8e6-b579-5adf-8fad-6e3fc0500279",
+              "name": "id",
+              "position": 0,
+              "type": "Custom",
+              "size": "INT UNSIGNED",
+              "isPrimaryKey": true,
+              "isUnique": true,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "f466b37e-b28c-5642-b9ed-ed275eaca0a3",
+              "name": "user_id",
+              "position": 1,
+              "type": "Custom",
+              "size": "INT UNSIGNED",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "b711041b-6637-5bda-96f7-1680795c7547",
+                "sourceTableId": "7c4c32be-7eb7-536b-8418-525cc369228b",
+                "columns": [
+                  {
+                    "id": "fk_fcab5ea0-98a6-5c60-8b5a-e93eee56f0dd",
+                    "name": "user_id",
+                    "type": "Custom",
+                    "size": "INT UNSIGNED"
+                  }
+                ]
+              },
+              "groupNumbers": [
+                1
+              ]
+            },
+            {
+              "id": "27a101a3-9336-59bb-acfd-5d7f95618152",
+              "name": "team_id",
+              "position": 2,
+              "type": "Custom",
+              "size": "INT UNSIGNED",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "9b8b7573-a49c-5b0b-9812-41ecae532c2e",
+                "sourceTableId": "f815b02d-3254-53cd-b4a9-45b5baf0849a",
+                "columns": [
+                  {
+                    "id": "fk_13bea83a-d0cb-5220-a4eb-4e3ea6f48bab",
+                    "name": "team_id",
+                    "type": "Custom",
+                    "size": "INT UNSIGNED"
+                  }
+                ]
+              },
+              "groupNumbers": [
+                1
+              ]
+            },
+            {
+              "id": "bd68e62e-ff3f-5a4f-b4fa-a57bee655a72",
+              "name": "message",
+              "position": 3,
+              "type": "VARCHAR(n)",
+              "size": "1000",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "2f8fb811-625d-5ddf-9fa6-a3e597cb885b",
+              "name": "kind",
+              "position": 4,
+              "type": "Custom",
+              "size": "ENUM('application','invitation')",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "734fdfb9-6dd5-5024-ba66-c489864cda3a",
+              "name": "status",
+              "position": 5,
+              "type": "Custom",
+              "size": "ENUM('pending','accepted','rejected','withdrawn','closed')",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            },
+            {
+              "id": "3ab272a0-ad5f-5f04-943c-44125bfbce22",
+              "name": "created_at",
+              "position": 6,
+              "type": "Custom",
+              "size": "TIMESTAMP",
+              "isPrimaryKey": false,
+              "isUnique": false,
+              "isOptional": false,
+              "isForeignKey": false
+            }
+          ],
+          "isConnectable": true,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 430,
+          "height": 260
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "3600de7c-307e-524c-ad21-d2819a2a215f",
+        "type": "Label",
+        "position": {
+          "x": 20,
+          "y": 850
+        },
+        "data": {
+          "label": "MySQL relational schema \u2014 six tables, six foreign keys\napplications: UNIQUE(user_id, team_id). kind distinguishes applications/invitations.\nmemberships: captain_team_id = IF(is_captain, team_id, NULL), STORED, UNIQUE.\nmember_count is maintained by membership triggers; do not update it directly.\nMySQL CHECKs, triggers, views and stored procedure remain in sql/schema.sql.\nMongoDB collections belong to the ER/document model, not to the SQL schema."
+        },
+        "measured": {
+          "width": 1070,
+          "height": 180
+        },
+        "selected": false,
+        "dragging": false
+      }
+    ],
+    "edges": [
+      {
+        "id": "7c4c32be-7eb7-536b-8418-525cc369228b->519bb0c6-449d-5e9f-b6ab-9bc9b5d118e1_2f2be643-b10c-501b-a35a-94d0dd35c869",
+        "type": "Relational",
+        "source": "7c4c32be-7eb7-536b-8418-525cc369228b",
+        "target": "519bb0c6-449d-5e9f-b6ab-9bc9b5d118e1",
+        "targetHandle": "foreign-key-handle-2f2be643-b10c-501b-a35a-94d0dd35c869",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "2f2be643-b10c-501b-a35a-94d0dd35c869",
+            "sourceTableId": "7c4c32be-7eb7-536b-8418-525cc369228b",
+            "columns": [
+              {
+                "id": "fk_fcab5ea0-98a6-5c60-8b5a-e93eee56f0dd",
+                "name": "user_id",
+                "type": "Custom",
+                "size": "INT UNSIGNED"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "7c4c32be-7eb7-536b-8418-525cc369228b->bb06cf50-c16a-5dd5-a1b0-782af90a12ef_8f777d51-c6c5-55d6-b5e9-4f2319c88d29",
+        "type": "Relational",
+        "source": "7c4c32be-7eb7-536b-8418-525cc369228b",
+        "target": "bb06cf50-c16a-5dd5-a1b0-782af90a12ef",
+        "targetHandle": "foreign-key-handle-8f777d51-c6c5-55d6-b5e9-4f2319c88d29",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "8f777d51-c6c5-55d6-b5e9-4f2319c88d29",
+            "sourceTableId": "7c4c32be-7eb7-536b-8418-525cc369228b",
+            "columns": [
+              {
+                "id": "fk_fcab5ea0-98a6-5c60-8b5a-e93eee56f0dd",
+                "name": "user_id",
+                "type": "Custom",
+                "size": "INT UNSIGNED"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "f815b02d-3254-53cd-b4a9-45b5baf0849a->bb06cf50-c16a-5dd5-a1b0-782af90a12ef_b9dc85be-85f2-56d8-816c-d656f43bfa34",
+        "type": "Relational",
+        "source": "f815b02d-3254-53cd-b4a9-45b5baf0849a",
+        "target": "bb06cf50-c16a-5dd5-a1b0-782af90a12ef",
+        "targetHandle": "foreign-key-handle-b9dc85be-85f2-56d8-816c-d656f43bfa34",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "b9dc85be-85f2-56d8-816c-d656f43bfa34",
+            "sourceTableId": "f815b02d-3254-53cd-b4a9-45b5baf0849a",
+            "columns": [
+              {
+                "id": "fk_13bea83a-d0cb-5220-a4eb-4e3ea6f48bab",
+                "name": "team_id",
+                "type": "Custom",
+                "size": "INT UNSIGNED"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "f9815b5a-805c-5347-801e-5913dee971a5->f815b02d-3254-53cd-b4a9-45b5baf0849a_f0469578-9665-5488-a251-db8c7e6ef3ee",
+        "type": "Relational",
+        "source": "f9815b5a-805c-5347-801e-5913dee971a5",
+        "target": "f815b02d-3254-53cd-b4a9-45b5baf0849a",
+        "targetHandle": "foreign-key-handle-f0469578-9665-5488-a251-db8c7e6ef3ee",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "f0469578-9665-5488-a251-db8c7e6ef3ee",
+            "sourceTableId": "f9815b5a-805c-5347-801e-5913dee971a5",
+            "columns": [
+              {
+                "id": "fk_09ffa5a6-bfec-556c-bda8-f0e239af3640",
+                "name": "track_id",
+                "type": "Custom",
+                "size": "INT UNSIGNED"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "7c4c32be-7eb7-536b-8418-525cc369228b->e4a95384-7329-59dc-9f99-4e6c9995097e_b711041b-6637-5bda-96f7-1680795c7547",
+        "type": "Relational",
+        "source": "7c4c32be-7eb7-536b-8418-525cc369228b",
+        "target": "e4a95384-7329-59dc-9f99-4e6c9995097e",
+        "targetHandle": "foreign-key-handle-b711041b-6637-5bda-96f7-1680795c7547",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "b711041b-6637-5bda-96f7-1680795c7547",
+            "sourceTableId": "7c4c32be-7eb7-536b-8418-525cc369228b",
+            "columns": [
+              {
+                "id": "fk_fcab5ea0-98a6-5c60-8b5a-e93eee56f0dd",
+                "name": "user_id",
+                "type": "Custom",
+                "size": "INT UNSIGNED"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "f815b02d-3254-53cd-b4a9-45b5baf0849a->e4a95384-7329-59dc-9f99-4e6c9995097e_9b8b7573-a49c-5b0b-9812-41ecae532c2e",
+        "type": "Relational",
+        "source": "f815b02d-3254-53cd-b4a9-45b5baf0849a",
+        "target": "e4a95384-7329-59dc-9f99-4e6c9995097e",
+        "targetHandle": "foreign-key-handle-9b8b7573-a49c-5b0b-9812-41ecae532c2e",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "9b8b7573-a49c-5b0b-9812-41ecae532c2e",
+            "sourceTableId": "f815b02d-3254-53cd-b4a9-45b5baf0849a",
+            "columns": [
+              {
+                "id": "fk_13bea83a-d0cb-5220-a4eb-4e3ea6f48bab",
+                "name": "team_id",
+                "type": "Custom",
+                "size": "INT UNSIGNED"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "viewport": {
+      "x": 45,
+      "y": 35,
+      "zoom": 0.7
+    }
+  }
+}

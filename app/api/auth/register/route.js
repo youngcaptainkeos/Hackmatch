@@ -8,6 +8,7 @@ export const POST = endpoint(async (request) => {
   const input = account.extend({ name: text(2, 80) }).parse(await request.json());
   const passwordHash = await hashPassword(input.password);
   // Accounts live entirely in MySQL. Mongo profiles are created on first save.
+  
   const [result] = await getMySQL().execute(
     'INSERT INTO users (name,email,password_hash) VALUES (?,?,?)',
     [input.name, input.email, passwordHash]

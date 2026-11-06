@@ -7,6 +7,8 @@ import { Brand } from './brand';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 // Two-column authentication block, adapted to HackMatch from shadcn/ui login-02.
+
+
 export default function AuthForm({ register = false }) {
   const router = useRouter();
   const [visible, setVisible] = useState(false),

@@ -3,6 +3,7 @@ import { getMySQL } from '@/lib/mysql';
 import { verifyPassword } from '@/lib/password';
 import { createSession } from '@/lib/auth';
 import { endpoint, problem } from '@/lib/http';
+
 // A valid dummy scrypt hash keeps unknown-user verification comparable in cost.
 const dummy = 'scrypt:00000000000000000000000000000000:' + '00'.repeat(64);
 export const POST = endpoint(async (request) => {
